@@ -1,0 +1,534 @@
+18 May 2020
+https://www.youtube.com/watch?v=w-7RQ46RgxU&list=PL4cUxeGkcC9gcy9lrvMJ75z9maRw4byYp
+https://github.com/iamshaunjp/node-js-playlist
+
+NOTES
+2.Install NodeJs, Create Project, Run
+4.The Global Object - setTimeout, setInterval, var, if, dirname, __filename
+5.Function Expressions - difference of normal js function and function expressions
+6.Modules, Require, Export - calling data to a different file
+7.Module Patterns - requiring more functions in a different file
+8.(review) The Node Event Emitter - (emitter - release) or using event handler
+9.Reading & Writing .txt Files (fs or file system) -
+10.Creating & Removing Directories or folder -
+11.Clients & Servers - explain req is client request and res is server response
+12.Creating a Server - set-up server
+13.Streams and Buffers - explain
+14.Creating Streams - display .txt data in a chunk to console in a number or text form
+15.Writable Streams - create a writeMe.txt with the data of readMe.txt
+16.Pipes Streams - take data into a read stream then pipe it into a write stream (i connect sila)
+                 - dili na mag sge listen write stream ni read stream, automatic na siya using pipes
+                 - what happen here is to display readMe.txt data to page
+17.Serving HTML Pages - display html file on the page, server
+18.Serving JSON Data - display JSON data on the page, server
+19.Basic Routing - different routing like localhost:3000/home, contact, json data, 404 page
+
+NOTES
+-----------------------------------------------------------------------------------------------
+V8 - converts js into machine using c++
+request - like localhost:3000/about the client want to see the about page
+
+2.Install NodeJs, Create Project, Run
+-----------------------------------------------------------------------------------------------
+1.download nodejs - lts(stable version), current(not stable version)
+2.cmd> node -v
+3.create nodejs-practice/public/app.js and add console.log('Hello World');
+4.to run: cmd\esktop\nodejs-practice\public> node app.js or node app
+
+4.The Global Object - setTimeout, setInterval, var, if, dirname, __filename
+                    - meaning you can access or pass data wherever you are
+-----------------------------------------------------------------------------------------------
+app.js
+    ----- sample-1 -----
+    setTimeout(function(){              //setTimeout - this function use to display data to console after 3sec.
+        console.log('Hello World');
+    }, 3000);
+
+    ----- sample-2 -----
+    var time = 0;
+    setInterval(function(){              //setInterval - cge siya of run after 2sec.
+        time += 2;
+        console.log(time + 'Hello World');
+    }, 2000);
+
+    note: ctrl+c to stop the interval
+
+    ----- sample-3 -----
+    var time = 0;
+    var timer = setInterval(function(){
+        time += 2;
+        console.log(time + 'seconds have passed');
+        if(time > 5){                                   //stop interval when time is equal to 6
+            clearInterval(timer);
+        }
+    }, 2000);
+
+    ----- sample-4 -----
+    console.log(__dirname);     //this will display the path of app.js of the file of this code
+    console.log(__filename);
+
+5.Function Expressions - difference of normal js function and function expressions
+-----------------------------------------------------------------------------------------------
+app.js
+    ----- sample-1 -----
+    //normal js function statement
+    function sayHi(){
+        console.log('hi');
+    }
+
+    ----- sample-2 -----
+    //function expressions
+    var sayBye = function(){        //function expressions uses unynomous function like function() - no name function
+        console.log('bye');
+    };
+
+    sayBye();
+
+    ----- sample-3 -----
+    //function expressions
+    function callFunction(fun){     //fun() - is a empty function, inside callFunction function
+        fun();                      //this will call the sayBye variable
+    }
+
+    var sayBye = function(){
+        console.log('bye');
+    };
+
+    callFunction(sayBye);           //sudli of sayBye variable si fun()
+
+6.Modules, Require, Export - calling data to a different file
+-----------------------------------------------------------------------------------------------
+count.js
+    var counter = function(arr){
+        return 'There are ' + arr.length + ' elaments in this array';   //arr.length - pila ka element naa sa array
+    };
+
+    module.exports = counter;
+
+app.js
+    var counter = require('./count');
+
+    console.log(counter(['shaun', 'crystal', 'ryu']));
+
+7.Module Patterns - requiring more functions in a different file
+-----------------------------------------------------------------------------------------------
+count.js
+    var counter = function(arr){
+        return 'There are ' + arr.length + ' elaments in this array';   //arr.length - pila ka element naa sa array
+    };
+
+    module.exports = counter;
+
+----- sample-1 -----
+stuff.js
+    var counter = function(arr){
+        return 'There are ' + arr.length + ' elaments in this array';   //arr.length - pila ka element naa sa array
+    };
+
+    var adder = function(a, b){
+        return `The sum of the 2 numbers is $(a+b)`;    //(``) or back text - you can add variable to display without using a concatenate
+    };
+
+    var pi = 3.142;
+
+    //module.exports = counter;             //in default is module.exports in an empty object
+    module.exports.counter = counter;       //this is now hold a specific function
+    module.exports.adder = adder;
+    module.exports.pi = pi;
+
+app.js
+    var stuff = require('./stuff');                                 //require stuff.js
+
+    console.log(stuff.counter(['shaun', 'crystal', 'ryu']));        //display data in counter.js
+    console.log(stuff.adder(5, 6));
+    console.log(stuff.adder(stuff.pi, 5));
+
+----- sample-2 (same result to sample-1) -----
+stuff.js
+    module.exports.counter = function(arr){                                 //module.exports.counter
+        return 'There are ' + arr.length + ' elaments in this array';
+    };
+
+    module.exports.adder = function(a, b){                                  //module.exports.adder
+        return `The sum of the 2 numbers is $(a+b)`;
+    };
+
+    module.exports.pi = 3.142;                                              //module.exports.pi
+
+app.js
+    var stuff = require('./stuff');                                         //require stuff.js
+
+    console.log(stuff.counter(['shaun', 'crystal', 'ryu']));
+    console.log(stuff.adder(5, 6));
+    console.log(stuff.adder(stuff.pi, 5));
+
+----- sample-3 (same result to sample-1 and 2) -----
+stuff.js
+    var counter = function(arr){
+        return 'There are ' + arr.length + ' elaments in this array';
+    };
+
+    var adder = function(a, b){
+        return `The sum of the 2 numbers is $(a+b)`;
+    };
+
+    var pi = 3.142;
+
+    module.exports = {                                                      //1.
+        counter: counter,
+        adder: adder,
+        pi: pi
+    };
+
+app.js
+    var stuff = require('./stuff');
+
+    console.log(stuff.counter(['shaun', 'crystal', 'ryu']));
+    console.log(stuff.adder(5, 6));
+    console.log(stuff.adder(stuff.pi, 5));
+
+8.(review) The Node Event Emitter - (emitter - release) or using event handler
+-----------------------------------------------------------------------------------------------
+app.js
+
+    ----- sample-1 -----
+    var events = require('events');
+
+    var myEmitter = new.events.EventEmitter();                  //1.access EventEmitter() function
+
+    myEmitter.on('someEvent', function(mssg){                   //3.on('someEvent', - meaning on click, display data to console
+        console.log(mssg);
+    });
+
+    myEmitter.emit('someEvent', 'thie event was emitted');      //2.sulod ni 'someEvent' kay si 'thie event was emitted'
+
+    ----- sample-2 -----
+    var events = require('events');
+    var util = require('util');                                 //util inherit things from object
+
+    var Person = function(name){                                //this is called object constructor
+        this.name = name;
+    };
+
+    util.inherits(Person, events.EventEmitter);                 //meaning si Person mo inherit sa event emitter
+                                                                //so naanay naka attach na emitter ni person
+    var james = new Person('james');
+    var mary = mary Person('mary');
+    var ryu = ryu Person('ryu');
+
+    var people = [james, mary, ryu];
+
+    people.forEach(function(person){
+        person.on('speak', function(mssg){
+            console.log(person.name + ' said: ' + mssg);      //this.name, display data here
+        });
+    });
+
+    james.emit('speak', 'hey dudes');
+    ryu.emit('speak', 'I want curry');
+
+output: james said: hey dudes
+        ryu said: I want a curry
+
+9.Reading & Writing .txt Files (fs or file system) -
+-----------------------------------------------------------------------------------------------
+1.project/create readMe.txt file and add Yay, you read me!
+2.app.js
+
+    ----- sample-1 -----
+    var fs = require('fs');                                     //module to use fs
+
+    var readMe =  fs.readFileSync('readMe.txt', 'utf8');        //this will read the .txt file
+    console.log(readMe);                                        //display to console the text in .txt
+    fs.writeFileSync('writeMe.txt', readMe);                    //this will create new .txt file that has Yay, you read me!
+
+    ----- sample-2 (same result to 1) -----
+    var fs = require('fs');
+
+    fs.readFileSync('readMe.txt', 'utf8', function(err, data){      //good thing of this is this will still run while reading the .txt file
+        console.log(data);
+    });
+
+    ----- sample-2 (same result to 1 and 2) -----
+    var fs = require('fs');
+
+    fs.readFileSync('readMe.txt', 'utf8', function(err, data){
+        console.log(data);          //note: second to display in console
+    });
+
+    console.log('test');            //note: first to display in console
+
+    ----- sample-4 -----
+    var fs = require('fs');
+
+    fs.readFileSync('readMe.txt', 'utf8', function(err, data){
+        fs.writeFile('writeMe.txt', data);                          //good thing of this is this will still run while writing the .txt file
+    });
+
+10.Creating & Removing Directories or folder -
+-----------------------------------------------------------------------------------------------
+app.js
+
+    ----- sample-1 ----
+    var fs = require('fs');
+
+    fs.unlink('writeMe.txt');           //this will unlink write me writeMe.txt file
+    //fs.mkdirSync('stuff');            //this will create stuff.txt file
+    //fs.rmdirSync('stuff');            //this will remove stuff.txt file
+
+    ----- sample-2 ----
+    var fs = require('fs');
+
+    fs.mkdir('stuff', function(){                                   //create stuff directory or folder
+        fs.readFile('readMe', 'utf8', function(err, data){          //retrieve the file
+            fs.writeFile('./stuff/writeMe.txt', data);              //write text to the data
+        });
+    });
+
+    ----- sample-3 ----
+    var fs = require('fs');
+
+    fs.unlink('./stuff/writtenMe.txt', function(){                  //before you can remove a directory you need to unlink it first
+        fs.rmdir('stuff');                                          //stuff.txt
+    });
+
+11.Clients & Servers - explain req is client request and res is server response
+-----------------------------------------------------------------------------------------------
+protocols - a set of communication rules, that two sides to agree to use when communicating like they might use (english both)
+http - is for the website
+ftp - is for file transfer
+tcp - socket
+sockerts
+packets
+ports - a program running on a computer can listen for requests sent to a particular port number like 172.24.86.76: 3000
+
+12.Creating a Server - set-up server
+-----------------------------------------------------------------------------------------------
+app.js
+
+    var http = require('http');                                 //require('http') or accessing http module
+
+    var server = http.createServer(function(req, res){          //req is client request and res is server response
+        //console.log('request was made: ' + req.url);          //this will display the url of the request like 127.0.0.1:3000/hello
+        res.writeHead(200, {'Context-Type': 'text/plain'});     //127.0.0.1:3000
+        res.end('Hey ninjas');                                  //this will the message display in the browser
+    });
+
+    server.listen(3000, '127.0.0.1');                             //ip and port
+    console.log('yo dawgs, now listening to port 3000');
+
+to run: - cmd> node app
+        - 127.0.0.1: 3000           //if connected this will display the message 'Hey ninjas'
+        - inspect/network           //you will see here the 127.0.0.1
+
+13.Streams and Buffers - explain
+-----------------------------------------------------------------------------------------------
+buffers - 'temporary storage' spot for a chunk of data that is being tranferred from one place to another
+        - the buffer is filled with data then passed along
+        - transfer small chunks of data at a time
+streams - data passed and procced
+
+14.Creating Streams - display .txt data in a chunk to console in a number or text form
+-----------------------------------------------------------------------------------------------
+writable streams - allow node js to write data to a stream
+readable streams - allow node js to read data from a stream
+duplex - can read and write to a stream
+
+app.js
+    var http = require('http');                                                     //modules
+    var fs = require('fs');
+
+    //var myReadStream = fs.createReadStream(__dirname + '/readMe.txt');            //this will display chunk data number in a console
+    var myReadStream = fs.createReadStream(__dirname + '/readMe.txt', 'utf8');      //this will display chunk data text in a console
+
+    myReadStream.on('data', function(chunk){                                        //chunk or boak boakon niya ang pag read sa data
+        console.log('new chunk received');
+        console.log(chunk);
+    });
+
+readMe.txt
+    Contrary to popular belief, Lorem Ipsum is not simply random text.
+    It has roots in a piece of classical Latin literature from 45 BC,
+    making it over 2000 years old. Richard McClintock, a Latin professor
+    at Hampden-Sydney College in Virginia, looked up one of the more obscure
+    Latin words, consectetur, from a Lorem Ipsum passage, and going through
+    the cites of the word in classical literature, discovered the
+    undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33
+    of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by
+    Cicero, written in 45 BC. This book is a treatise on the theory of
+    ethics, very popular during the Renaissance. The first line of Lorem
+    Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section
+    1.10.32.
+
+15.Writable Streams - create a writeMe.txt with the data of readMe.txt
+-----------------------------------------------------------------------------------------------
+app.js
+
+    var http = require('http');                                                     //modules
+    var fs = require('fs');
+
+    //var myReadStream = fs.createReadStream(__dirname + '/readMe.txt');            //this will display chunk data number in a console
+    var myReadStream = fs.createReadStream(__dirname + '/readMe.txt', 'utf8');      //this will display chunk data text in a console
+    var myWriteStream = fs.createWriteStream(__dirname + '/writeMe.txt');           //1.write data
+
+    myReadStream.on('data', function(chunk){                                        //chunk or boak boakon niya ang pag read sa data
+        console.log('new chunk received');
+        myWriteStream.write(chunk);                                                 //2.write data - this will create a writeMe.txt with the data of readMe.txt
+
+16.Pipes Streams - take data into a read stream then pipe it into a write stream (i connect sila)
+                 - dili na mag sge listen write stream ni read stream, automatic na siya using pipes
+                 - what happen here is to display readMe.txt data to page
+-----------------------------------------------------------------------------------------------
+app.js
+
+    var http = require('http');
+    var fs = require('fs');
+
+    var server = http.createServer(function(req, res){                                  //create server
+        console.log('request was made: ' + req.url);                                    //log message to console when server is run
+        res.writeHead(200, {'Context-Type': 'text/plain'});                             //write stream
+        var myReadStream = fs.createReadStream(__dirname + '/readMe.txt', 'utf8');      //read or get the data from the readMe.txt
+        myReadStream.pipe(res);                                                         //this is how to use the pipe
+    });
+
+    server.listen(3000, '127.0.0.1');                                                   //ip and port
+    console.log('yo dawgs, now listening to port 3000');                                //display readMe.txt data to page
+
+17.Serving HTML Pages - display html file on the page, server
+-----------------------------------------------------------------------------------------------
+1.app.js
+    var http = require('http');
+    var fs = require('fs');
+
+    var server = http.createServer(function(req, res){                                  //create server
+        console.log('request was made: ' + req.url);                                    //log message to console when server is run
+        res.writeHead(200, {'Context-Type': 'text/html'});                              //1.'text/plain' display .txt, 'text/html' display html file
+        var myReadStream = fs.createReadStream(__dirname + '/index.html', 'utf8');      //2.read or get the data from the readMe.txt
+        myReadStream.pipe(res);                                                         //this is how to use the pipe
+    });
+
+    server.listen(3000, '127.0.0.1');                                                   //ip and port
+    console.log('yo dawgs, now listening to port 3000');                                //display readMe.txt data to page
+
+2.index.html
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>Welcome to the most awesome website on the net</h1>
+        <p>You won't find a website better anywhere else!</p>
+      </body>
+    </html>
+
+18.Serving JSON Data - display JSON data on the page, server
+-----------------------------------------------------------------------------------------------
+app.js
+    var http = require('http');
+    var fs = require('fs');
+
+    var server = http.createServer(function(req, res){                                  //create server
+        console.log('request was made: ' + req.url);                                    //log message to console when server is run
+        var myReadStream = fs.createReadStream(__dirname + 'application/json', 'utf8'); //1.application/json
+        myReadStream.pipe(res);                                                         //this is how to use the pipe
+        var myObj = {                                                                   //2.variable
+          name: 'Ryu',
+          job: 'Ninja',
+          age: 29
+        };
+        res.end(JSON.stringify(myObj));                                                 //3.you can only display string or buffer not an object
+                                                                                        //  you need to convert it to string like this
+    });
+
+    server.listen(3000, '127.0.0.1');                                                   //ip and port
+    console.log('yo dawgs, now listening to port 3000');                                //display readMe.txt data to page
+
+19.Basic Routing - different routing like localhost:3000/home, contact, json data, 404 page
+-----------------------------------------------------------------------------------------------
+1.app.js
+    var http = require('http');
+    var fs = require('fs');
+
+      var server = http.createServer(function(req, res){                      //create server
+        console.log('request was made: ' + req.url);                          //log message to console when server is run
+        if(req.url === '/home' || req.url === '/'){                           //1.is the request is localhost:3000/home or localhost:3000
+          res.writeHead(200, {'Content-Type': 'text/html'});
+          fs.createReadStream(__dirname + '/index.html').pipe(res);
+        } else if(req.url === '/contact'){                                    //2.localhost:3000/contact
+          res.writeHead(200, {'Content-Type': 'text/html'});
+          fs.createReadStream(__dirname + '/contact.html').pipe(res);
+        } else if(req.url === '/api/ninjas'){                                 //3.localhost:3000/api/ninjas
+          var ninjas = [{name: 'ryu', age: 29}, {name: 'yoshi', age: 32}];
+          res.writeHead(200, {'Content-Type': 'application/json'});
+          res.end(JSON.stringify(ninjas));
+        } else {
+          res.writeHead(404, {'Content-Type': 'text/html'});                  //4.if page not for display 404 page
+          fs.createReadStream(__dirname + '/404.html').pipe(res);
+        }
+    });
+
+    server.listen(3000, '127.0.0.1');                                         //ip and port
+    console.log('yo dawgs, now listening to port 3000');                      //display readMe.txt data to page
+
+2.index.html
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>Welcome to the most awesome website on the net</h1>
+        <p>You won't find a website better anywhere else!</p>
+      </body>
+    </html>
+
+3.contact.html
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>Contact</h1>
+        <p>contact contact contact contact contact contact</p>
+      </body>
+    </html>
+
+4.404.html
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>404</h1>
+        <p>404404404404404404404404404404404404404404</p>
+      </body>
+    </html>
+
+to run: - ctrl+c to stop
+        - cmd> node app
+        - localhost:3000/home, contact, json data, 404 page(if data not found display 404 page)
+
+19.Node Package Manager (npm) - express is one of the package and many more
+                              - npmjs.com - you will see here information packages of npm
+-----------------------------------------------------------------------------------------------
+1.cmd/project> npm install express      //this will install node_modules, package-lock.json
+               npm uninstall express    //this will uninstall or delete all package in node_modules folder, bin file nalang ang mahabilin
+
+21
