@@ -4,6 +4,7 @@ https://github.com/iamshaunjp/node-js-playlist
 
 NOTES
 2.Install NodeJs, Create Project, Run
+  note: instead of using cmd>node app.js use nodemon app.js
 4.The Global Object - setTimeout, setInterval, var, if, dirname, __filename
 5.Function Expressions - difference of normal js function and function expressions
 6.Modules, Require, Export - calling data to a different file
@@ -22,6 +23,22 @@ NOTES
 17.Serving HTML Pages - display html file on the page, server
 18.Serving JSON Data - display JSON data on the page, server
 19.Basic Routing - different routing like localhost:3000/home, contact, json data, 404 page
+20.Node Package Manager (npm) - express is one of the package and many more
+                              - npmjs.com - you will see here information packages of npm
+21.package.json File - packages installed will record here
+22.Installing Nodemon - monitor the changes of the browser and server and automatically refresh
+                      - like if naakay i edit sa code, dili naka mag run server napud and etc. nodemon will autmatically update
+-----------------------------------------------------------------------------------------------
+23-24.Introduction of Express (Routing) - localhost:3000, localost:3000/contact, localost:3000/profile/123
+25-26.Template Engines (using ejs template) - displaying ejs data to html, variable, forEach, array
+27.Partial Templates - links, like si nav.ejs is display ni profile.ejs
+28.Middleware & Static Files - review
+29.Query Strings - review
+30.Handling POST Requests - insert data to forms and display to console, success message
+-----------------------------------------------------------------------------------------------
+31-34.To Do App Project - insert forms, delete list-item
+35-36.Intro to NoSQL / MongoDB - connect to mongo db and insert dummy data (without using forms)
+37.Insert data to monggo db (using forms), delete data in database
 
 NOTES
 -----------------------------------------------------------------------------------------------
@@ -525,10 +542,664 @@ to run: - ctrl+c to stop
         - cmd> node app
         - localhost:3000/home, contact, json data, 404 page(if data not found display 404 page)
 
-19.Node Package Manager (npm) - express is one of the package and many more
+20.Node Package Manager (npm) - express is one of the package and many more
                               - npmjs.com - you will see here information packages of npm
 -----------------------------------------------------------------------------------------------
 1.cmd/project> npm install express      //this will install node_modules, package-lock.json
                npm uninstall express    //this will uninstall or delete all package in node_modules folder, bin file nalang ang mahabilin
 
-21
+21.package.json File - packages installed will record here
+-----------------------------------------------------------------------------------------------
+1.npm init - this will create package.json
+2.npm install - i check niya angmga packages na naka record sa package.json, unya inya na i install tanan
+
+22.Installing Nodemon - monitor the changes of the browser and server and automatically refresh
+                      - like if naakay i edit sa code, dili naka mag run server napud and etc. nodemon will autmatically update
+-----------------------------------------------------------------------------------------------
+1.https://www.npmjs.com/package/nodemon
+2.npm install -g nodemon
+3.note: instead of using cmd>node app.js use nodemon app.js
+
+23-24.Introduction of Express (Routing) - localhost:3000, localost:3000/contact, localost:3000/profile/123
+-----------------------------------------------------------------------------------------------
+1.cmd> npm install express -save
+
+    var express = require('express');                                               //this will access the module/library npm express
+    var app = express();                                                            //access express functionality
+
+    app.get('/', function(req, res){                                                //localost:3000
+      res.send('this is the homepage');                                             //output: this is the homepage
+    });
+
+    app.get('/contact', function(req, res){                                         //localost:3000/contact
+      res.send('this is the contact page');                                         //output: this is the contact page
+    });
+
+    app.get('/profile/:id', function(req, res){                                     //localost:3000/profile/123
+      res.send('You requested to see a profile with the id of ' + req.params.id);   //output: You requested to see a profile with the id of 123
+    });
+
+    app.listen(3000);                                                               //this will listen to http request like post, get, delete, put etc.
+
+    //to run: - cmd/project> nodemon app.js
+    //        - localhost:3000, localost:3000/contact, localost:3000/profile/123
+
+25-26.Template Engines (using ejs template) - displaying ejs data to html, variable, forEach, array
+-----------------------------------------------------------------------------------------------
+1.use this template - https://ejs.co/
+2.install ejs package - cmd/project> npm install ejs -save      //-save meaning save to dependencies or package.json
+
+----- sample-1 display ejs data -----
+3.project/views/profile.ejs
+
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>USING EJS <%= person %></h1>                                        //3.ejs - display ejs data
+        <p>using ejs using ejs using ejs using ejs using ejs using ejs </p>
+      </body>
+    </html>
+
+4.app.js
+
+    var express = require('express');                                           //this will access the module/library npm express
+    var app = express();                                                        //access express functionality
+
+    app.set('view engine', 'ejs');                                              //1.ejs - use ejs template
+
+    app.get('/', function(req, res){                                            //localost:3000
+      res.sendFile(__dirname + '/index.html');                                  //display: index.html
+    });
+
+    app.get('/contact', function(req, res){                                     //localost:3000/contact
+      res.sendFile(__dirname + '/contact.html');                                //display: contact.html
+    });
+
+    app.get('/profile/:name', function(req, res){                               //localost:3000/profile/123 or ryu or etc.
+      res.render('profile', {person: req.params.name});                         //2.ejs - views/profile.js
+    });
+
+    app.listen(3000);                                                           //this will listen to http request like post, get, delete, put etc.
+
+    //to run: - cmd/project> nodemon app.js
+    //        - localhost:3000, localost:3000/contact, localost:3000/profile/123
+
+----- sample-2 displaying more ejs data using variable object -----
+1.project/views/profile.ejs
+
+      var express = require('express');                                               //this will access the module/library npm express
+      var app = express();                                                            //access express functionality
+
+      app.set('view engine', 'ejs');                                                  //1.ejs - use ejs template
+
+      app.get('/', function(req, res){                                                //localost:3000
+        res.sendFile(__dirname + '/index.html');                                      //display: index.html
+      });
+
+      app.get('/contact', function(req, res){                                         //localost:3000/contact
+        res.sendFile(__dirname + '/contact.html');                                    //display: contact.html
+      });
+
+      app.get('/profile/:name', function(req, res){                                   //localost:3000/profile/123 or ryu or etc.
+        var data = {age:29, job:'ninja'};                                             //variable object
+        res.render('profile', {person: req.params.name, data:data});                  //2.ejs - views/profile.js
+      });
+
+      app.listen(3000);                                                               //this will listen to http request like post, get, delete, put etc.
+
+      //to run: - cmd/project> nodemon app.js
+      //        - localhost:3000, localost:3000/contact, localost:3000/profile/123
+
+2.app.js
+
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>USING EJS <%= person %></h1>
+        <p><strong>Age: </strong><%= data.age %></p>          //3.ejs - display variable object data
+        <p><strong>Job: </strong><%= data.job %></p>          //4.ejs - display variable object data
+      </body>
+    </html>
+
+----- sample-2 displaying more ejs data using variable object -----
+1.app.js
+
+    var express = require('express');                                               //this will access the module/library npm express
+    var app = express();                                                            //access express functionality
+
+    app.set('view engine', 'ejs');                                                  //1.ejs - use ejs template
+
+    app.get('/', function(req, res){                                                //localost:3000
+      res.sendFile(__dirname + '/index.html');                                      //display: index.html
+    });
+
+    app.get('/contact', function(req, res){                                         //localost:3000/contact
+      res.sendFile(__dirname + '/contact.html');                                    //display: contact.html
+    });
+
+    app.get('/profile/:name', function(req, res){                                   //localost:3000/profile/123 or ryu or etc.
+      var data = {age:29, job:'ninja', hobbies: ['eating', 'fighting', 'fishing']}; //variable object
+      res.render('profile', {person: req.params.name, data:data});                  //2.ejs - views/profile.js
+    });
+
+    app.listen(3000);                                                               //this will listen to http request like post, get, delete, put etc.
+
+    //to run: - cmd/project> nodemon app.js
+    //        - localhost:3000, localost:3000/contact, localost:3000/profile/123
+
+2.profile.js
+
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <h1>USING EJS <%= person %></h1>
+        <p><strong>Age: </strong><%= data.age %></p>
+        <p><strong>Job: </strong><%= data.job %></p>
+        <h2>Hobbies</h2>
+        <ul>
+          <% data.hobbies.forEach(function(item){ %>          //3.ejs - display array data
+            <li><%= item %></li>
+          <% }); %>
+        </ul>
+      </body>
+    </html>
+
+27.Partial Templates - links, like si nav.ejs is display ni profile.ejs
+-----------------------------------------------------------------------------------------------
+1.project/views/partials/nav.ejs
+
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>                                                   //3.ejs -links
+        <li><a href="/contact">Home</a></li>
+        <li></li>
+      </ul>
+    </nav>
+
+2.1.project\node-express\views\profile.ejs
+
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <% include partials/nav.ejs %>                                                  //1.ejs - include nav.js template
+        <h1>USING EJS <%= person %></h1>
+        <p><strong>Age: </strong><%= data.age %></p>
+        <p><strong>Job: </strong><%= data.job %></p>
+        <h2>Hobbies</h2>
+        <ul>
+          <% data.hobbies.forEach(function(item){ %>
+            <li><%= item %></li>
+          <% }); %>
+        </ul>
+      </body>
+    </html>
+
+3.project/views/partials/index.ejs
+
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <style media="screen">
+
+        </style>
+      </head>
+      <body>
+        <% include partials/nav.ejs %>                                                  //1.ejs - include nav.js template
+        <h1>Welcome to the most awesome website on the net</h1>
+        <p>You won't find a website better anywhere else!</p>
+      </body>
+    </html>
+
+app.js
+
+    var express = require('express');
+    var app = express();
+
+    app.set('view engine', 'ejs');
+
+    app.get('/', function(req, res){
+      res.render('index');                                                              //2.ejs - use render to diplay include ejs.template
+    });
+
+    app.get('/contact', function(req, res){
+      res.render('contact');                                                            //2.ejs -
+    });
+
+    app.get('/profile/:name', function(req, res){
+      var data = {age:29, job:'ninja', hobbies: ['eating', 'fighting', 'fishing']};
+      res.render('profile', {person: req.params.name, data:data});
+    });
+
+    app.listen(3000);
+
+28.Middleware & Static Files - review
+-----------------------------------------------------------------------------------------------
+
+29.Query Strings - review
+-----------------------------------------------------------------------------------------------
+1.contact.ejs
+
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+      </head>
+      <body>
+        <% include partials/nav.ejs %>
+        <h1>Contact Us</h1>
+        <p>Contact the coolest cats o the web right here...</p>
+        <!-- <p><%= qs.dept %></p> -->
+        <form id="contact-form">
+          <label for="who">Who do you want to contact?</label>
+          <input type="text" name="who" value="<%= qs.person %>">               //display populated data here
+          <label for="department">Which department?</label>
+          <input type="text" name="department" value="<%= qs.dept %>">
+          <label for="email">Your email</label>
+          <input type="email" name="email" value="<%= qs.email %>">
+          <input type="submit" name="" value="submit">
+        </form>
+      </body>
+    </html>
+
+30.Handling POST Requests - insert data to forms and display to console, success message
+-----------------------------------------------------------------------------------------------
+guide: npmjs body-parser
+1.cmd/project> npm install body-parser
+2.contact.ejs
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+      </head>
+      <body>
+        <% include partials/nav.ejs %>
+        <h1>Contact Us</h1>
+        <p>Contact the coolest cats o the web right here...</p>
+        <!-- <p><%= qs.dept %></p> -->
+        <form id="contact-form" method="POST" action="/contact">                    <!--1.post - submit data-->
+          <label for="who">Who do you want to contact?</label>
+          <input type="text" name="who" value="<%= qs.person %>">
+          <label for="department">Which department?</label>
+          <input type="text" name="department" value="<%= qs.dept %>">
+          <label for="email">Your email</label>
+          <input type="email" name="email" value="<%= qs.email %>">
+          <input type="submit" name="" value="submit">
+        </form>
+      </body>
+    </html>
+
+3.app.js
+
+    var express = require('express');
+    var bodyParser = require('body-parser');                                        //2.bodyParser - use express
+    var app = express();
+
+    var urlencodedParser = bodyParser.urlencoded({ extended: false });              //3.bodyParser - encode the data
+
+    app.set('view engine', 'ejs');
+    app.use('/assets', express.static('assets'));
+
+    app.get('/', function(req, res){
+      res.render('index');
+    });
+
+    app.get('/contact', function(req, res){
+      console.log(req.query);
+      res.render('contact', {qs: req.query});
+    });
+
+    app.post('/contact', urlencodedParser, function(req, res){                      //4.bodyParser - display data to console
+      console.log(req.body);
+      res.render('contact-success', {data: req.body});
+    });
+
+    app.get('/profile/:name', function(req, res){
+      var data = {age:29, job:'ninja', hobbies: ['eating', 'fighting', 'fishing']};
+      res.render('profile', {person: req.params.name, data:data});
+    });
+
+    app.listen(3000);
+
+4.views/partials/contact-success.ejs
+
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+      </head>
+      <body>
+        <% include partilas/nav.ejs %>
+        <h1>Contact Us!</h1>
+        <p>Thanks for getting n touch!</p>
+        <p>You cantacted <%= data.department %> department.</p>                 //5.bodyParser - display ejs message
+        <p>We wil reply to you at <%= data.email %></p>
+      </body>
+    </html>
+
+to run: cmd/porfile> nodemon app.js
+        localhost:3000/contact
+
+31-34.To Do App Project - insert forms, delete list-item
+-----------------------------------------------------------------------------------------------
+----- error -----
+- dili mo insert of delete
+
+----- note -----
+- when app run kay and app.js iyang una na basahon
+- delete-list-item - todoController.js
+- display-dummy-data
+- to add logo - h1{background: url(assets/logo.png) no-repeat center;
+- <% %> - if not inside the html
+- <%= %> - if inside the html tag
+
+1.project/public/assets
+2.cmd/project/npm init
+3.cmd/project/npm install express -save             //node_modules
+4.cmd/project/npm install ejs -save                 //template
+5.cmd/project/npm install body-parser -save         //post, get etc. request
+6.cmd/project/app.js
+7.project/app.js
+
+    var express = require('express');
+    var todoController = require('./controllers/todoController');                   //1.todoController.js
+                                                                                    //2.how this work - this will get the process delete request from todoController.js
+    //using express
+    var app = express();
+
+    //(views folder) using ejs template
+    app.set('view engine', 'ejs');
+
+    //static files like css, js etc.
+    //app.use('/assets', express.static('./public'))
+    //or
+    //ex: locahost:3000/assets/styles.css
+    app.use(express.static('./public'));
+
+    //fire controllers
+    todoController(app);                                                            //2.todoController.js
+                                                                                    //3.how this work - execute the delete process
+    //listen to port like localhost:3000
+    app.listen(3000);                                                               //1.how this work - mao ni mo listen kong unsay buhaton sa user like delete data
+    console.log('you are listening to port 3000');                                  //                - data will sent to todoController.js to process the delete data request
+
+8.project/controllers/todoController.js
+
+    var bodyParser = require('body-parser');                                                      //1.insert-display-forms - bodyParser module
+
+    var data = [{item: 'get milk'}, {item: 'walk dog'}, {item: 'kick some coding ass'}];          //1.display-dummy-data - to display in the page not from the database
+
+    var urlencodedParser = bodyParser.urlencoded({extended:false});                               //2.insert-display-forms - use (Middleware)
+
+    module.exports = function(app){
+                                                                                                  //(app) is the var app = express(); in app.js
+      app.get('/todo', function(req, res){                                                        //1. /todo - views/todo.ejs like localhost:3000/todo
+        res.render('todo', {todos: data});                                                        //2.display-dummy-data - {todos: data} receive the data of var data and send to views/todo.ejs
+      });
+
+      app.post('/todo', urlencodedParser, function(req, res){                                     //3.insert-display-forms - get data
+        data.push(req.body);                                                                      //4.insert-display-forms - push the data in this array var data = [{item: 'get milk'}, {item: 'walk dog'},
+        res.json(data);                                                                           //5.insert-display-forms - return data to type: 'POST' in "todo-list.js"
+      });
+
+      app.delete('/todo/:item', function(req, res){                                               //1.delete-list-item - this will recieve the request when list-item is click
+        data = data.filter(function(todo){                                                        //2.delete-list-item - filter the data than is click "go to todo-list.js"
+          return todo.item.replace(/ /g, '-') !== req.params.item;
+        });
+        res.json(data);
+      });
+    }
+
+9.project/public/assets/todo-list.js
+
+    $(document).ready(function(){
+
+      $('form').on('submit', function(){                                            //when form is submit in views/todo.js
+
+          var item = $('form input');                                               //is the input field
+          var todo = {item: item.val()};                                            //get the data of input field
+
+          $.ajax({                                                                  //6.insert-display-forms - this is called an ajax request to the server
+            type: 'POST',                                                           //  bodyParser - is the app.post('/todo', function(req, res){ in the todoController.js
+            url: '/todo',                                                           //  localhost:3000/todo
+            data: todo,                                                             //  data: todo is the data of var todo
+            success: function(data){                                                //  success message
+              //do something with the data via front-end framework
+              location.reload();                                                    //7.insert-display-forms - reload the page and send data to todo.ejs
+            }
+          });
+
+          return false;
+      });
+
+      $('li').on('click', function(){                                               //3.delete-list-item - when click li
+          var item = $(this).text().replace(/ /g, "-");                             //4.delete-list-item - replace the text list to -
+          $.ajax({
+            type: 'DELETE',
+            url: '/todo/' + item,                                                   //5.delete-list-item - localhost:3000/delete-2
+            success: function(data){
+              //do something with the data via front-end framework
+              location.reload();                                                    //6.delete-list-item - go to "todo.ejs"
+            }
+          });
+      });
+
+    });
+
+10.project/views/todo.ejs
+
+    <!DOCTYPE html>
+    <html lang="en" dir="ltr">
+      <head>
+        <meta charset="utf-8">
+        <title></title>
+        <script src="https://code.jquery.com/jquery-1.12.3.min.js" integrity="sha384-R4/ztc4ZlRqWjqIuvf6RX5yb/v90qNGx6fS48N0tRxiGkqveZETq72KgDVJCp2TC" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="/assets/styles.css" type="text/css" />
+      </head>
+      <body>
+        <h1>My Todo List</h1>       <!--display logo here-->
+        <div id="todo-table">
+          <form>
+            <input type="text" name="item" placeholder="And new item..." required>
+            <button type="submit">Add Item</button>
+          </form>
+          <ul>
+            <% for(var i=0; i < todos.length; i++){ %>        <!--//3.display-dummy-data - display data of "res.render('todo', {todos: data});"  from todoController.js-->
+              <li><%= todos[i].item  %></li>                  <!--//7.insert-display-forms - -->
+            <% } %>                                           <!-- 7.delete-list-item -->
+          </ul>
+        </div>
+      </body>
+    </html>
+
+11.project/public/assets/styles.css
+
+    body{
+        background: #0d1521;
+        font-family: tahoma;
+        color: #989898;
+    }
+
+    #todo-table{
+        position: relative;
+        width: 95%;
+        background: #090d13;
+        margin: 0 auto;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    #todo-table form:after{
+        margin: 0;
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    input[type="text"]{
+        width: 70%;
+        padding: 20px;
+        background:#181c22;
+        border: 0;
+        float: left;
+        font-size: 20px;
+        color: #989898;
+    }
+
+    button{
+        padding: 20px;
+        width: 30%;
+        float: left;
+        background: #23282e;
+        border: 0;
+        box-sizing: border-box;
+        color: #fff;
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    ul{
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li{
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        font-family: arial;
+        font-size: 20px;
+        cursor: pointer;
+        letter-spacing: 1px;
+    }
+
+    li:hover{
+        text-decoration: line-through;
+        background: rgba(0,0,0,0.2);
+    }
+
+    h1{
+        background: url(/assets/logo.png) no-repeat center;
+        margin-bottom: 0;
+        text-indent: -10000px;
+    }
+
+35-36.Intro to NoSQL / MongoDB - connect to mongo db and insert dummy data (without using forms)
+-----------------------------------------------------------------------------------------------
+1.download monggo db (local) or use mlab.com (cloud) same monggo db
+2.monggose - clean way communicating of monggo database
+3.project> npm install mongoose -save
+4.create database in mlab
+5.connect and insert dummy data "without using forms" in the database
+  project/controllers/todoController.js
+
+      var bodyParser = require('body-parser');                                                      //1.insert-display-forms - bodyParser module
+      var mongoose = require('mongoose');                                                           //1.mongoose - module
+
+      mongoose.connect('mongodb://test:test@ds017195.mlab.com:17175/todo')                          //2.mongoose - this is the api mongodb site to "connect" your app
+                                                                                                    //           - test:test is the username and password of your database in mongo site
+
+      var todoSchema = new mongoose.Schema({                                                        //3.mongoose - create a schema - this is like a blueprint or like a table in the database
+        item: String
+      });
+
+      var Todo = mongoose.model('Todo', todoSchema);                                                //4.mongoose -
+      var itemOne = Todo({item: 'buy flowers'}).save(function(err){                                 //5.mongoose - "insert" 'buy flowers' to db and if theres error display error message or success message
+        if(err) throw err;                                                                          //  data will save in mongo db in json format
+        console.log('item saved');
+      });
+
+      var data = [{item: 'get milk'}, {item: 'walk dog'}, {item: 'kick some coding ass'}];          //1.display-dummy-data - to display in the page not from the database
+
+      var urlencodedParser = bodyParser.urlencoded({extended:false});                               //2.insert-display-forms - use (Middleware)
+
+      module.exports = function(app){
+                                                                                                    //(app) is the var app = express(); in app.js
+        app.get('/todo', function(req, res){                                                        //1. /todo - views/todo.ejs like localhost:3000/todo
+          res.render('todo', {todos: data});                                                        //2.display-dummy-data - {todos: data} receive the data of var data and send to views/todo.ejs
+        });
+
+        app.post('/todo', urlencodedParser, function(req, res){                                     //3.insert-display-forms - get data
+          data.push(req.body);                                                                      //4.insert-display-forms - push the data in this array var data = [{item: 'get milk'}, {item: 'walk dog'},
+          res.json(data);                                                                           //5.insert-display-forms - return data to type: 'POST' in "todo-list.js"
+        });
+
+        app.delete('/todo/:item', function(req, res){                                               //1.delete-list-item - this will recieve the request when list-item is click
+          data = data.filter(function(todo){                                                        //2.delete-list-item - filter the data than is click "go to todo-list.js"
+            return todo.item.replace(/ /g, '-') !== req.params.item;
+          });
+          res.json(data);
+        });
+      }
+
+37.Insert data to monggo db (using forms), delete data in database
+-----------------------------------------------------------------------------------------------
+1.project/controllers/todoController.js
+
+    var bodyParser = require('body-parser');
+    var mongoose = require('mongoose');                                                           //1.mongoose - module
+
+    mongoose.connect('mongodb://test:test@ds017195.mlab.com:17175/todo')                          //2.mongoose - this is the api mongodb site to "connect" your app
+                                                                                                  //           - test:test is the username and password of your database in mongo site
+
+    var todoSchema = new mongoose.Schema({                                                        //3.mongoose - create a schema - this is like a blueprint or like a table in the database
+      item: String
+    });
+
+    var Todo = mongoose.model('Todo', todoSchema);                                                //4.mongoose -
+
+    // var data = [{item: 'get milk'}, {item: 'walk dog'}, {item: 'kick some coding ass'}];
+
+    var urlencodedParser = bodyParser.urlencoded({extended:false});
+
+    module.exports = function(app){
+
+      app.get('/todo', function(req, res){
+        Todo.find({}, function(err, data){                                                        //5.mongoose - get data from mongodb and pass it to view
+          if(err) throw err;
+          res.render('todo', {todos: data});
+        });
+      });
+
+      app.post('/todo', urlencodedParser, function(req, res){                                     //6.mongoose - get data from the view and add it to mongodb
+        var newTodo = Todo(req.body).save(function(err, data){
+          if(err) throw err;
+          res.json(data);
+        })     ;
+      });
+
+      app.delete('/todo/:item', function(req, res){
+        Todo.find({item: req.params.item.replace(/\-/g, "")}).remove(function(err, data){         //7.mongoose - delete the requested item from mongodb
+          if(err) throw err;
+          res.json(data);
+        });
+      });
+    }
