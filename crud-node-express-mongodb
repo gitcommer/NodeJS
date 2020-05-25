@@ -3,8 +3,13 @@ https://www.youtube.com/watch?v=voDummz1gO0&t=400s
 https://github.com/CodAffection/Node.js-Expess-MongoDB-CRUD
 
 NOTES
-9.TEST ROUTE or DISPLAY SIMPLE TEXT
-10.DISPLAY html forms using .hbs or handlebars module
+1.INSTALL NEEDED PACKAGES
+2.SETUP DATABASE
+9.DISPLAY or (route) SAMPLE TEXT TO PAGE
+10.mainLayout.hbs or home page, bootstrap
+   display html-hbs or handlebars
+   display html file to .hbs module like {{{body}}} mao ranan iyang code
+   display variable to .hbs module like <h3>{{viewTitle}}</h3> mao ranan iyang code
 11.INSERT FORMS DATA TO MongoDB
 12.DISPLAY DATA FROM THE DATABASE
 
@@ -13,58 +18,66 @@ NOTES
 - create crud operation using node, express and mongodb
 - forms - <form action="/employee" method="POST" autocomplete="off">, autocomplete="off" para dili mogawas ang mga cash input
         - <form autocomplete="off">, if you use this data will diplay in the url
-- mongoose module - is use in forms activity like cruds, validation etc.
+- mongoose module - connect your app to mongodb
 - links - <h3><a class="btn btn-secondary" href="/employee"><i class="fa fa-plus"></i> Create New</a> Employee List</h3>
 - view list - <a class="btn btn-secondary" href="/employee/list"><i class="fa fa-list-alt"></i> View All</a>
+- controller - siya mag boot unsa ang i display, html ba or data sa crud operation etc.
+- handlebars - user to create html files
+- {{{}}} - this is use to display html to .hbs data like {{{body}}}
+- {{}} - this is use to display variable data in .hbs like {{viewTitle}}
+- app.js or server.js - home page or diri simbolon tanan module like nav, body, variable data, etc.
 
-1.project> npm init (entry point: server.js)                                                  //package.json
-2.npm i --s express@4.17.1 mongoose@5.9.15 express-handlebars@4.0.4 body-parser@1.19.0        //i(install), --s(save), mongoose@5.3.4(version)
+1.INSTALL NEEDED PACKAGES
+--------------------------------------------------------------------------------
+- project> npm init (entry point: server.js)                                                  //install only this if nag sugod dyud ka og new project
+- npm i --s express@4.17.1 mongoose@5.9.15 express-handlebars@4.0.4 body-parser@1.19.0        //i(install), --s(save), mongoose@5.3.4(version)
 
-3.create this file in the desktop                                                             //create this on notepad and run
+- create this file in the desktop                                                             //create this on notepad and run
   Start MongoDB.bat - cd C:\Program Files\MongoDB\Server\4.2\bin
                       mongod.exe --dbpath C:\Users\comme\mongo-data
 
-  note: - first you need to "install mongodb and mongodb compass"
-        - this is the same in pasting path in environment variables
+2.SETUP DATABASE
+--------------------------------------------------------------------------------
+note: - first you need to "install mongodb and mongodb compass"
+      - this is the same in pasting path in environment variables
 
-4.setting-up database
-    1.download mongodb community
-        - C:\Program Files\MongoDB\Server\3.6\bin                                             //paste this to "environment variables"
-        - cmd> mongo                                                                          //to check if installed
-    2.download mongodb compass (run as administrator)
+1.download mongodb community
+    - C:\Program Files\MongoDB\Server\3.6\bin                                               //paste this to "environment variables"
+    - cmd> mongo                                                                            //to check if installed
+2.download mongodb compass (run as administrator)
 
-create database: database name: EmployeeDB
-                 table or collection name: employees
+3.create database: database name: EmployeeDB
+                   table or collection name: employees
 
-5.connect to MongoDB
+4.connect to MongoDB
 - project/models/db.js                                                                                    //database connection
 
-    const mongoose = require('mongoose');
+    const mongoose = require('mongoose');                                                                 //use mongoose to connect to db
 
-    mongoose.connect('mongodb://localhost:27017/EmployeeDB', { useNewUrlParser: true }, (err) => {        //EmployeeDB is the db name
+    mongoose.connect('mongodb://localhost:27017/EmployeeDB', { useNewUrlParser: true }, (err) => {        //EmployeeDB mao rani i check nimo diri
         if (!err) { console.log('MongoDB Connection Succeeded.') }
         else { console.log('Error in DB connection : ' + err) }
     });
 
-    require('./employee.model');
+    require('./employee.model');                                                                          //models/employee.model.js - schema
 
-6.project/server.js                                                                           //same as app.js
+5.project/server.js                                                                           //same as app.js
 
-    require('./models/db');                                                                   //models/db.js
+    require('./models/db');                                                                   //1models/db.js - connect to db
 
-    const express = require('express');                                                       //1.express - module
+    const express = require('express');                                                       //2.use express module
 
-    var app = express();                                                                      //2.express - use express module
+    var app = express();                                                                      //3.call express function
 
-    app.listen(3000, () => {                                                                  //3.express - listen to server or localhost:3000
+    app.listen(3000, () => {                                                                  //4.run app localhost:3000
         console.log('Express server started at port : 3000');
     });
 
-7.project/models/employee.model.js                                                            //schema or table set-up
+6.project/models/employee.model.js                                                            //schema or table set-up
 
     const mongoose = require('mongoose');
 
-    var employeeSchema = new mongoose.Schema({        //table
+    var employeeSchema = new mongoose.Schema({                                                //table or collection
         fullName: {
             type: String,
             required: 'This field is required.'
@@ -82,17 +95,17 @@ create database: database name: EmployeeDB
 
     mongoose.model('Employee', employeeSchema);
 
-8.run server: cmd> nodemon server.js
+7.run server: cmd> nodemon server.js
               localhost:3000, Cannot Get/ (meaning you don't have any routing created)
 
-9.TEST ROUTE or DISPLAY SIMPLE TEXT
+9.DISPLAY or (route) SAMPLE TEXT TO PAGE
 --------------------------------------------------------------------------------
 1.project/controllers/employeeController.js
 
-    const express = require('express');                                             //express module
-    var router = express.Router();                                                  //1.router - use router
+    const express = require('express');                                             //1.route or link - express module
+    var router = express.Router();                                                  //2.route or link - para maka route ka or link link
 
-    router.get('/', (req, res) => {
+    router.get('/', (req, res) => {                                                 //3.route or link - '/' or display text in localhost:3000
         res.json('sample text');
     });
 
@@ -100,40 +113,43 @@ create database: database name: EmployeeDB
 
 2.project/server.js
 
-    require('./models/db');                                                         //models/db.js
+    require('./models/db');                                                         //database connection
 
-    const express = require('express');                                             //1.express - module
+    const express = require('express');                                             //require express
 
-    const employeeController = require('./controllers/employeeController');         //1.test-route
+    const employeeController = require('./controllers/employeeController');         //4.route or link - call the data of employeeController.js
 
-    var app = express();                                                            //2.express - use express module
+    var app = express();                                                            //use express
 
-    app.listen(3000, () => {                                                        //3.express - listen to server or localhost:3000
+    app.listen(3000, () => {                                                        //localhost:3000
         console.log('Express server started at port : 3000');
     });
 
-    app.use('/employee', employeeController);                                       //2.test-route
+    app.use('/employee', employeeController);                                       //5.route or link - i display ang data sa employeeController.js sa server.js
 
 to run: http://localhost:3000/employee
 output: sample text
 
-10.DISPLAY html forms using .hbs or handlebars module
+10.mainLayout.hbs or home page, bootstrap
+   display html-hbs or handlebars
+   display html file to .hbs module like {{{body}}} mao ranan iyang code
+   display variable to .hbs module like <h3>{{viewTitle}}</h3> mao ranan iyang code
 --------------------------------------------------------------------------------
 1.project/server.js
 
     require('./models/db');
 
     const express = require('express');
-    const path = require('path');                                                                                               //1.using-handlebars - to use folder path or directory
-    const exphbs = require('express-handlebars');                                                                               //2.using-handlebars - to use hbs
+    const path = require('path');                                                                                               //using-handlebars - to use folder path or directory
+    const exphbs = require('express-handlebars');                                                                               //using-handlebars - to use hbs
 
-    const employeeController = require('./controllers/employeeController');
-
+    const employeeController = require('./controllers/employeeController');                                                     //1.html-hbs - call employeeController.js
+                                                                                                                                             - ang data niya kay si addOrEdit.hbs and <h3>{{viewTitle}}</h3>
     var app = express();
-
-    app.set('views', path.join(__dirname, '/views/'));                                                                         //3.using-handlebars - locate "views folder"
-    app.engine('hbs', exphbs({ extname: 'hbs', defaultLayout: 'mainLayout', layoutsDir: __dirname + '/views/layouts/' }));     //4.using-handlebars - this is like views/layouts/mainLayout.hbs
-    app.set('view engine', 'hbs');                                                                                             //5.using-handlebars - use the .hbs extension
+                                                                                                                               //2.html-hbs - this is the format and code in displaying html.hbs like (mainLayout.hbs)
+    app.set('views', path.join(__dirname, '/views/'));                                                                         //  using-handlebars - locate "views folder"
+    app.engine('hbs', exphbs({ extname: 'hbs', defaultLayout: 'mainLayout', layoutsDir: __dirname + '/views/layouts/' }));     //  using-handlebars - this is like views/layouts/mainLayout.hbs
+    app.set('view engine', 'hbs');                                                                                             //  using-handlebars - use the .hbs extension
 
     app.listen(3000, () => {
         console.log('Express server started at port : 3000');
@@ -146,9 +162,9 @@ output: sample text
     const express = require('express');
     var router = express.Router();
 
-    router.get('/', (req, res) => {                                                                                           //6.using-handlebars - views/employee/addOrEdit.hbs
+    router.get('/', (req, res) => {                                                                                           //3.using-handlebars - call views/employee/addOrEdit.hbs
         res.render("employee/addOrEdit", {
-            viewTitle: "Insert Employee"                                                                                      //  viewTitle: "Insert Employee" is the <h3>{{viewTitle}}</h3> in addOrEdit.hbs
+            viewTitle: "Insert Employee"                                                                                      //1.displaying variable - viewTitle: "Insert Employee" is the <h3>{{viewTitle}}</h3> in addOrEdit.hbs
         });
     });
 
@@ -168,16 +184,16 @@ output: sample text
       <body class="bg-info">
           <div class="row">
               <div class="col-md-6 offset-md-3" style="background-color: #fff;margin-top: 25px;padding:20px;">
-                  {{{body}}}                                                                                                  <!-- //7.using-handlebars - display here the forms of addOrEdit.hbs -->
+                  {{{body}}}                                                                                                  <!-- 2.display html file to .hbs - display here the [forms] of addOrEdit.hbs -->
               </div>
           </div>
 
       </body>
     </html>
 
-3.project/views/employee/addOrEdit.hbs
+3.project/views/employee/addOrEdit.hbs                                                                                        <!-- 1.display html file to .hbs -->
 
-    <h3>{{viewTitle}}</h3>                                                                                                    <!-- //8.using-handlebars - is the viewTitle: "Insert Employee" employeeController.js -->
+    <h3>{{viewTitle}}</h3>                                                                                                    <!-- 2.displaying variable -  - is the viewTitle: "Insert Employee" employeeController.js -->
 
     <form action="/employee" method="POST" autocomplete="off">
         <input type="hidden" name="_id" value="{{employee._id}}">
@@ -209,11 +225,15 @@ output: sample text
         </div>
     </form>
 
-11.INSERT FORMS DATA TO MongoDB
+11.insert forms to db - redirect to list
+   convert to json the form data
+   submit forms without input and log hi to console
+   insert to forms and display data to console
+   action="/employee" (if wla ni siya data will display to url)
 --------------------------------------------------------------------------------
 1.project/views/employee/addOrEdit.hbs
 
-    <form action="/employee" method="POST" autocomplete="off">
+    <form action="/employee" method="POST" autocomplete="off">                                                                    //1.insert forms to db - action="/employee" (if wla ni siya data will display to url)
 
 2.project/server.js
 
@@ -222,16 +242,16 @@ output: sample text
     const express = require('express');
     const path = require('path');
     const exphbs = require('express-handlebars');
-    const bodyparser = require('body-parser');                                                                                    //1.post-or-insert - use bodyparser
+    const bodyparser = require('body-parser');                                                                                    //2.insert forms to db - handlebars mao ni module sa forms
 
     const employeeController = require('./controllers/employeeController');
 
     var app = express();
 
-    app.use(bodyparser.urlencoded({                                                                                               //2.post-or-insert - get form data
+    app.use(bodyparser.urlencoded({                                                                                               //3.insert forms to db - and convert to json the form data
         extended: true
     }));
-    app.use(bodyparser.json());                                                                                                   //3.post-or-insert - and convert to json
+    app.use(bodyparser.json());                                                                                                   //3.insert forms to db - and convert to json the form data
 
     app.set('views', path.join(__dirname, '/views/'));
     app.engine('hbs', exphbs({ extname: 'hbs', defaultLayout: 'mainLayout', layoutsDir: __dirname + '/views/layouts/' }));
@@ -247,8 +267,8 @@ output: sample text
 
     const express = require('express');
     var router = express.Router();
-    const mongoose = require('mongoose');                                           //1.post-or-insert - mongoose is use to interact in mongo database
-    const Employee = mongoose.model('Employee');                                    //2.post-or-insert - Employee is the database
+    const mongoose = require('mongoose');                                           //6.insert forms to db -
+    const Employee = mongoose.model('Employee');                                    //7.insert forms to db - Employee is the schema copy in employee.model.js
 
     router.get('/', (req, res) => {
         res.render("employee/addOrEdit", {
@@ -257,22 +277,22 @@ output: sample text
     });
 
     router.post('/', (req, res) => {
-        //console.log('hi');                                                        //3.post-or-insert - insert to forms and display data to console
-        //console.log('req.body');                                                  //4.post-or-insert - body or forms data, insert to forms and display data to console
+        //console.log('hi');                                                        //insert forms to db - submit forms without input and log hi to console
+        //console.log('req.body');                                                  //insert forms to db - {{{body}}} or forms data, insert to forms and display data to console
         if (req.body._id == '')
-            insertRecord(req, res);
+            insertRecord(req, res);                                                 //5.insert forms to db - insertRecord(req, res); and function insertRecord(req, res) { is the [same] gibalhin ra
             else
             updateRecord(req, res);
     });
 
-    function insertRecord(req, res) {                                               //5.post-or-insert - insert forms data to database
-        var employee = new Employee();                                              //6.post-or-insert - Employee() will call the db in const Employee = mongoose.model('Employee');
-        employee.fullName = req.body.fullName;                                      //7.post-or-insert - forms field
+    function insertRecord(req, res) {                                               //4.insert forms to db - insert forms data to database
+        var employee = new Employee();                                              //8.insert forms to db Employee() will call the db in const Employee = mongoose.model('Employee');
+        employee.fullName = req.body.fullName;                                      //9.insert forms to db - forms field
         employee.email = req.body.email;
         employee.mobile = req.body.mobile;
         employee.city = req.body.city;
-        employee.save((err, doc) => {                                               //8.post-or-insert - save
-            if (!err)                                                               //9.post-or-insert - of no error redirect to list
+        employee.save((err, doc) => {                                               //10.insert forms to db - save to db with call back function to check err or doc
+            if (!err)                                                               //11.insert forms to db - of no error redirect to employee/list.hbs
                 res.redirect('employee/list');
             else {
                 if (err.name == 'ValidationError') {                                //5.forms-validation - this will call the function handleValidationError(err, body) {
@@ -288,7 +308,8 @@ output: sample text
         });
     }
 
-    router.get('/list', (req, res) => {
+    router.get('/list', (req, res) => {                                             //12.insert forms to db - redirect to localhost:3000/employee/list
+        //res.json('from list');                                                    //   test redirect
         Employee.find((err, docs) => {
             if (!err) {
                 res.render("employee/list", {
@@ -596,3 +617,8 @@ note: when you inspect element the forms you will see the id store
 
     <form action="/employee" method="POST" autocomplete="off">
         <input type="hidden" name="_id" value="{{employee._id}}">                                     //hidden id store here
+
+
+
+
+30min
