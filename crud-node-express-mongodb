@@ -10,8 +10,15 @@ NOTES
    display html-hbs or handlebars
    display html file to .hbs module like {{{body}}} mao ranan iyang code
    display variable to .hbs module like <h3>{{viewTitle}}</h3> mao ranan iyang code
-11.INSERT FORMS DATA TO MongoDB
-12.DISPLAY DATA FROM THE DATABASE
+11.insert forms to db - redirect to list
+  convert to json the form data
+  submit forms without input and log hi to console
+  insert to forms and display data to console
+  action="/employee" (if wla ni siya data will display to url)
+  note: para dali ra pag edit, i highlight ra ang name="" sa forms sa kada page
+12.DISPLAY DATA FROM THE DATABASE - display-db-data - display db data to forms in the list page
+                                  - link - localhost:3000/employee
+                                  - when click list display specific id
 
 NOTES
 --------------------------------------------------------------------------------
@@ -230,11 +237,12 @@ output: sample text
    submit forms without input and log hi to console
    insert to forms and display data to console
    action="/employee" (if wla ni siya data will display to url)
+   note: para dali ra pag edit, i highlight ra ang name="" sa forms sa kada page
 --------------------------------------------------------------------------------
 1.project/views/employee/addOrEdit.hbs
 
     <form action="/employee" method="POST" autocomplete="off">                                                                    //1.insert forms to db - action="/employee" (if wla ni siya data will display to url)
-
+                                                                                                                                                         - action hold the data of forms
 2.project/server.js
 
     require('./models/db');
@@ -249,7 +257,7 @@ output: sample text
     var app = express();
 
     app.use(bodyparser.urlencoded({                                                                                               //3.insert forms to db - and convert to json the form data
-        extended: true
+        extended: true                                                                                                                                   - this will call the data of app.use('/employee', employeeController); in server.js
     }));
     app.use(bodyparser.json());                                                                                                   //3.insert forms to db - and convert to json the form data
 
@@ -339,7 +347,9 @@ output: sample text
 
     module.exports = router;
 
-12.FORMS VALIDATION
+12.FORMS VALIDATION - fullname validation
+                    - email validation
+                    - error when input is blank but still display the input of the other field
 --------------------------------------------------------------------------------
 1.project/models/employee.model.js
 
@@ -348,24 +358,24 @@ output: sample text
     var employeeSchema = new mongoose.Schema({                                  //table or shema
         fullName: {
             type: String,
-            required: 'This field is required.'                                 //1.forms-validation -
+            required: 'This field is required.'                                 //1.forms-validation - this is the form validation for fullName
         },
         email: {
             type: String
         },
-        mobile: {
+        mobile: {                                                               //no form validation
             type: String
         },
-        city: {
+        city: {                                                                 //no form validation
             type: String
         }
     });
 
-    Custom validation for email                                                 //2.forms-validation - track error character in email
+    Custom validation for email                                                 //2.forms-validation - this is the form validation for email
     employeeSchema.path('email').validate((val) => {
         emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return emailRegex.test(val);
-    }, 'Invalid e-mail.');
+    }, 'Invalid e-mail.');                                                      //2.forms-validation - this is the message of email validation
 
     mongoose.model('Employee', employeeSchema);
 
@@ -397,19 +407,19 @@ output: sample text
           employee.email = req.body.email;
           employee.mobile = req.body.mobile;
           employee.city = req.body.city;
-          employee.save((err, doc) => {
+          employee.save((err, doc) => {                                               //5.forms-validation - err parameter
               if (!err)
                   res.redirect('employee/list');
               else {
-                  if (err.name == 'ValidationError') {                                //5.forms-validation - this will call the function handleValidationError(err, body) {
-                      handleValidationError(err, req.body);
-                      res.render("employee/addOrEdit", {
-                          viewTitle: "Insert Employee",
-                          employee: req.body
+                  if (err.name == 'ValidationError') {                                //5.forms-validation - name is the name="" in forms or the "function handleValidationError(err, body) {"
+                      handleValidationError(err, req.body);                           //  body or forms
+                      res.render("employee/addOrEdit", {                              //  send the error message to addOrEdit.hbs
+                          viewTitle: "Insert Employee",                               //  error message
+                          employee: req.body                                          //  display error to body or forms
                       });
                   }
                   else
-                      console.log('Error during record insertion : ' + err);          //3.forms-validation -  - forms validation error
+                      console.log('Error during record insertion : ' + err);          //3.forms-validation - log form error to console
               }
           });
       }
@@ -478,15 +488,17 @@ output: sample text
         </div>
     </form>
 
-12.DISPLAY DATA FROM THE DATABASE
+12.DISPLAY DATA FROM THE DATABASE - display-db-data - display db data to forms in the list page
+                                  - link - localhost:3000/employee
 --------------------------------------------------------------------------------
 1.project/controllers/employeeController.js
 
     router.get('/list', (req, res) => {                                             //1.display-db-data - localhost:3000/list
-        Employee.find((err, docs) => {                                              //2.display-db-data - Employee is the db
-            if (!err) {
+        //res.json('from list');                                                    //  sample display
+        Employee.find((err, docs) => {                                              //2.display-db-data - Employee is the db, docs is all the data in the database
+            if (!err) {                                                             //  if no error, display data to the list
                 res.render("employee/list", {
-                    list: docs                                                      //3.display-db-data - docs is the data
+                    list: docs                                                      //3.display-db-data - display data on the list, docs is the data in the database
                 });
             }
             else {
@@ -497,7 +509,7 @@ output: sample text
 
 2.project/views/employee/list.hbs
 
-    <h3><a class="btn btn-secondary" href="/employee"><i class="fa fa-plus"></i> Create New</a> Employee List</h3>
+    <h3><a class="btn btn-secondary" href="/employee"><i class="fa fa-plus"></i> Create New</a> Employee List</h3>      <!-- 1.link - localhost:3000/employee -->
     <table class="table table-striped">
         <thead>
             <tr>
@@ -509,9 +521,9 @@ output: sample text
             </tr>
         </thead>
         <tbody>
-            {{#each list}}
+            {{#each list}}                                                      <!-- 4.display-db-data - is like foreach open -->
             <tr>
-                <td>{{this.fullName}}</td>        <!-- //4.display-db-data -  -->
+                <td>{{this.fullName}}</td>                                      <!-- 4.display-db-data -->
                 <td>{{this.email}}</td>
                 <td>{{this.mobile}}</td>
                 <td>{{this.city}}</td>
@@ -520,15 +532,21 @@ output: sample text
                     <a href="/employee/delete/{{this._id}}" onclick="return confirm('Are you sure to delete this record ?');"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></a>
                 </td>
             </tr>
-            {{/each}}
+            {{/each}}                                                           <!-- 4.display-db-data - is like foreach close -->
         </tbody>
     </table>
 
-13.EDIT
+3.project/views/employee/addOrEdit.hbs
+
+    <a class="btn btn-secondary" href="/employee/list"><i class="fa fa-list-alt"></i> View All</a>      <!-- 2.link - localhost:3000/employee/list -->
+
+13.EDIT and UPDATE - getting specific id
+                   - update
+                   - redirect
 --------------------------------------------------------------------------------
 1.views/employee/list.hbs
 
-    <a href="/employee/{{this._id}}"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
+    <a href="/employee/{{this._id}}"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>        //1.getting specific id - _id is the id format in the database
 
 2.controllers/employeeController.js
 
@@ -538,11 +556,11 @@ output: sample text
         if (req.body._id == '')
             insertRecord(req, res);
             else
-            updateRecord(req, res);                                                                   //the will get the forms data
+            updateRecord(req, res);                                                                   //1.update - this will check if the request is insert or update
     });
 
-    function updateRecord(req, res) {                                                                 //this will update the record when forms submit
-        Employee.findOneAndUpdate({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {
+    function updateRecord(req, res) {                                                                 //2.update - this will update the record when forms submit
+        Employee.findOneAndUpdate({ _id: req.body._id }, req.body, { new: true }, (err, doc) => {     //2.update - this is the function to update
             if (!err) { res.redirect('employee/list'); }
             else {
                 if (err.name == 'ValidationError') {
@@ -559,11 +577,11 @@ output: sample text
     }
 
     router.get('/:id', (req, res) => {
-        Employee.findById(req.params.id, (err, doc) => {
+        Employee.findById(req.params.id, (err, doc) => {                        //2.getting specific id - find specific id in the database
             if (!err) {
-                res.render("employee/addOrEdit", {
+                res.render("employee/addOrEdit", {                              //2.getting specific id - display id data to forms
                     viewTitle: "Update Employee",
-                    employee: doc                                                                     //employee: doc - doc is the data in database
+                    employee: doc                                               //2.getting specific id - doc is the data in database
                 });
             }
         });
@@ -573,13 +591,19 @@ output: sample text
 note: when you inspect element the forms you will see the id store
 
     <form action="/employee" method="POST" autocomplete="off">
-        <input type="hidden" name="_id" value="{{employee._id}}">                                     //hidden id store here
+        <input type="hidden" name="_id" value="{{employee._id}}">               //3.getting specific id - store id in hidden
 
-13.DELETE
+4.views/employee/list.hbs
+
+    <a href="/employee/{{this._id}}"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>                                                                              //4.getting specific id - this._id
+    <a href="/employee/delete/{{this._id}}" onclick="return confirm('Are you sure to delete this record ?');"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></a>      //4.getting specific id - this._id
+
+13.DELETE - delte
+          - alert message
 --------------------------------------------------------------------------------
 1.views/employee/list.hbs
 
-    <a href="/employee/delete/{{this._id}}" onclick="return confirm('Are you sure to delete this record ?');"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></a>
+    <a href="/employee/delete/{{this._id}}" onclick="return confirm('Are you sure to delete this record ?');"><i class="fa fa-trash fa-lg" aria-hidden="true"></i></a>      //1.alert message
 
 2.controllers/employeeController.js
 
@@ -589,10 +613,10 @@ note: when you inspect element the forms you will see the id store
         if (req.body._id == '')
             insertRecord(req, res);
             else
-            updateRecord(req, res);                                                                   //the will get the forms data
+            updateRecord(req, res);
     });
 
-    router.get('/delete/:id', (req, res) => {
+    router.get('/delete/:id', (req, res) => {                                   //1.delete -
         Employee.findByIdAndRemove(req.params.id, (err, doc) => {
             if (!err) {
                 res.redirect('/employee/list');
@@ -606,19 +630,8 @@ note: when you inspect element the forms you will see the id store
             if (!err) {
                 res.render("employee/addOrEdit", {
                     viewTitle: "Update Employee",
-                    employee: doc                                                                     //employee: doc - doc is the data in database
+                    employee: doc
                 });
             }
         });
     });
-
-3.views/employee/addOrEdit.hbs
-note: when you inspect element the forms you will see the id store
-
-    <form action="/employee" method="POST" autocomplete="off">
-        <input type="hidden" name="_id" value="{{employee._id}}">                                     //hidden id store here
-
-
-
-
-30min
