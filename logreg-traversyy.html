@@ -1,0 +1,102 @@
+27 May 2020
+https://www.youtube.com/watch?v=6FOq4cUdH8k&t=1s
+https://github.com/bradtraversy/node_passport_login
+
+NOTES
+SETUP PACKAGES USE
+ROUTES                                                                          //localhost:3000, req, res
+
+NOTES
+--------------------------------------------------------------------------------
+passport - is the package authentication in node
+jsonwebtocken                                                                   //for frontend like react, vues
+.ejs                                                                            //template engine (but dont have layout)
+expess-ejs-layouts                                                              //is the layout of .ejs
+express                                                                         //framework
+bcryptjs                                                                        //incrip password
+passport                                                                        //for authentication
+passport-local                                                                  //local strategy
+connect-flash
+app.js - const PORT = process.env.PORT || 5000;                                 //this is use kong mo send kag data sa cloud database (to run this: npm run dev)
+         app.listen(PORT, console.log(`Server started on port ${PORT}`));
+npm run dev                                                                     //use to run POST 5000
+Cannot GET/                                                                     //meaning wala pakay route na gibuhat (walay sulod si "routes folder")
+mongodb atlast                                                                  //this is a cloud type database
+
+SETUP PACKAGES USE
+--------------------------------------------------------------------------------
+1.npm init -y                                                                                                     //install auto
+2.npm i express bcryptjs passport passport-local ejs express-ejs-layouts mongoose connect-flash express-session   //packages use
+3.npm i -D nodemon
+4.package.json (update this part)                                                                                 //-D for dev dependencies
+
+      {
+        "name": "logreg-traversy",
+        "version": "1.0.0",
+        "description": "",
+        "main": "app.js",                       //1.update
+        "scripts": {
+          "start": "node app.js",               //2.update
+          "dev": "nodemon app.js"               //3.update
+        },
+        "keywords": [],
+        "author": "",
+        "license": "ISC",
+        "dependencies": {
+          "bcryptjs": "^2.4.3",
+          "connect-flash": "^0.1.1",
+          "ejs": "^3.1.3",
+          "express": "^4.17.1",
+          "express-ejs-layouts": "^2.5.0",
+          "express-session": "^1.17.1",
+          "mongoose": "^5.9.16",
+          "passport": "^0.4.1",
+          "passport-local": "^1.0.0"
+        },
+        "devDependencies": {
+          "nodemon": "^2.0.4"
+        }
+      }
+
+ROUTES - localhost:3000, router.get('/', (req, res) => res.send('welcome'));
+       - display-simple-text  on page
+--------------------------------------------------------------------------------
+1.project/routes/index.js (bali mao ni homepage sa route, ari diri mo redirect after login)
+
+      const express = require('express');
+      const router = express.Router();
+
+      router.get('/', (req, res) => res.send('welcome'));                       //1.display-simple-text - call index.js in routes, localhost:5000
+
+      module.exports = router;
+
+2.project/routes/users.js
+
+      const express = require('express');
+      const router = express.Router();
+
+      router.get('/login', (req, res) => res.send('login page'));               //2.display-simple-text - call index.js in routes, localhost:5000/users/login
+      router.get('/register', (req, res) => res.send('register page'));         //2.display-simple-text - call index.js in routes, localhost:5000/users/register
+
+      module.exports = router;
+
+3.project/app.js
+
+      const express = require('express');
+
+      const app = express();
+
+      //Routes
+      app.use('/', require('./routes/index'));                                  //3.display-simple-text -
+
+      const PORT = process.env.PORT || 5000;
+
+      app.listen(PORT, console.log(`Server started on port ${PORT}`));
+
+to run: - npm run dev
+        - localhost:5000
+        - call index.js in routes, localhost:5000/users/login
+        - call index.js in routes, localhost:5000/users/register
+
+
+14min
