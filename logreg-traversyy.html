@@ -4,10 +4,24 @@ https://github.com/bradtraversy/node_passport_login
 
 NOTES
 SETUP PACKAGES USE
-ROUTES                                                                          //localhost:3000, req, res
+CREATE A PORT
+ROUTES - localhost:3000, router.get('/', (req, res) => res.send('welcome'));
+       - display-simple-text on page
+       - display-.ejs-files or like html, routes and views folder
+       - how to link - <a href="/users/register" class="btn btn-primary btn-block mb-2">Register</a>        //href="/users/register" kani ra basta tanan files naa sa views
+       - register - value="<%= typeof name != 'undefined' ? name : '' %>"                                   //form trapping - i display gihapon ang data if naay error sa lain na input
+       note: res.send('welcome')                                                                            //display text
+             res.render('welcome')                                                                          //display .ejs files in views
+             <%- body %> in layout.ejs
+SETUP & CONNECT DATABASE
+CREATE DATABASE TABLE
+ADD BOOTSWATCH, FONTAWESOME, BOOTSTRAP CDN
 
 NOTES
 --------------------------------------------------------------------------------
+app.js                                                                          //naa diri ang mga localhost:5000/login
+routes                                                                          //mao ni mopa display sa text, html, ejs
+
 passport - is the package authentication in node
 jsonwebtocken                                                                   //for frontend like react, vues
 .ejs                                                                            //template engine (but dont have layout)
@@ -22,6 +36,8 @@ app.js - const PORT = process.env.PORT || 5000;                                 
 npm run dev                                                                     //use to run POST 5000
 Cannot GET/                                                                     //meaning wala pakay route na gibuhat (walay sulod si "routes folder")
 mongodb atlast                                                                  //this is a cloud type database
+flash                                                                           //is use for messaging like success message, error message
+<%- body %>                                                                     //layout.ejs, this will include .ejs file in views
 
 SETUP PACKAGES USE
 --------------------------------------------------------------------------------
@@ -58,15 +74,29 @@ SETUP PACKAGES USE
         }
       }
 
-ROUTES - localhost:3000, router.get('/', (req, res) => res.send('welcome'));
-       - display-simple-text  on page
+CREATE A PORT
 --------------------------------------------------------------------------------
-1.project/routes/index.js (bali mao ni homepage sa route, ari diri mo redirect after login)
+const express = require('express');
+
+const app = express();
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, console.log(`Server started on port ${PORT}`));
+
+to run: npm run dev
+output: Server started on port  5000 (console)
+
+route and views - display text or .ejs, bootswatch, fontawesome, bootstrap cdn
+                - note: if error delete this part in login or register <% include ./partials/messages %>
+--------------------------------------------------------------------------------
+1.project/routes/index.js
 
       const express = require('express');
-      const router = express.Router();
+      const router = express.Router();                                          //1.route
 
-      router.get('/', (req, res) => res.send('welcome'));                       //1.display-simple-text - call index.js in routes, localhost:5000
+      //router.get('/', (req, res) => res.send('welcome'));                     //2.route-display-simple-text - display "welcome" text, localhost:5000
+      router.get('/', (req, res) => res.render('welcome'));                     //3.ejs - display the page "welcome.ejs", from views, localhost:5000
 
       module.exports = router;
 
@@ -75,19 +105,27 @@ ROUTES - localhost:3000, router.get('/', (req, res) => res.send('welcome'));
       const express = require('express');
       const router = express.Router();
 
-      router.get('/login', (req, res) => res.send('login page'));               //2.display-simple-text - call index.js in routes, localhost:5000/users/login
-      router.get('/register', (req, res) => res.send('register page'));         //2.display-simple-text - call index.js in routes, localhost:5000/users/register
+      //router.get('/login', (req, res) => res.send('login page'));             //2.route-display-simple-text - display "login page" text, localhost:5000/users/login
+      //router.get('/register', (req, res) => res.send('register page'));       //2.route-display-simple-text - display "register page" text, localhost:5000/users/register
+
+      router.get('/login', (req, res) => res.render('login'));                  //3.ejs - display the page "login.ejs" from views, localhost:5000/users/login
+      router.get('/register', (req, res) => res.render('register'));            //3.ejs - display the page "register.ejs" from views, localhost:5000/users/register
 
       module.exports = router;
 
 3.project/app.js
 
       const express = require('express');
-
+      const expressLayouts = require('express-ejs-layouts');                    //1.ejs -
       const app = express();
 
-      //Routes
-      app.use('/', require('./routes/index'));                                  //3.display-simple-text -
+      // EJS
+      app.use(expressLayouts);                                                  //2.ejs -
+      app.set('view engine', 'ejs');                                            //2.ejs -
+
+      // Routes
+      app.use('/', require('./routes/index'));                                  //3.route-display-simple-text
+      app.use('/users', require('./routes/users'));
 
       const PORT = process.env.PORT || 5000;
 
@@ -98,5 +136,115 @@ to run: - npm run dev
         - call index.js in routes, localhost:5000/users/login
         - call index.js in routes, localhost:5000/users/register
 
+SETUP & CONNECT DATABASE
+--------------------------------------------------------------------------------
+********** mongodb atlas
+- build a cluster
+- cluster name: PracticeMongoDBCluster
+- you can create user who can read and write the database (username:rom, password:romlema)
+- whitelist use is using ip address
+- connect
+- connect to your application
+- uri: mongodb+srv://rom_5:<password>@cluster0-inkfk.mongodb.net/test?retryWrites=true&w=majority
 
-14min
+1.project/config/keys.js
+
+      dbPassword = 'mongodb+srv://YOUR_USERNAME_HERE:'+ encodeURIComponent('YOUR_PASSWORD_HERE') + '@CLUSTER_NAME_HERE.mongodb.net/test?retryWrites=true';      //you can find this "uri" in mongoose atlast
+
+      module.exports = {
+          mongoURI: dbPassword
+      };
+
+2.app.js
+
+      const mongoose = require('mongoose');                                     //1.connect-database - put on top
+
+      // DB Config                                                              //2.connect-database - put this part in middle top
+      const db = require('./config/keys').mongoURI;                             //2.connect-database - config/keys.js
+
+      // Connect to MongoDB                                                     //2.connect-database -
+      mongoose
+        .connect(
+          db,
+          { useNewUrlParser: true }
+        )
+        .then(() => console.log('MongoDB Connected'))
+        .catch(err => console.log(err));
+
+to check if database connected: npm run dev, and you will see this message in console "MongoDB Connected"
+
+CREATE DATABASE TABLE
+--------------------------------------------------------------------------------
+1.project/models/User.js
+
+const mongoose = require('mongoose');
+
+      const UserSchema = new mongoose.Schema({
+        name: {
+          type: String,
+          required: true
+        },
+        email: {
+          type: String,
+          required: true
+        },
+        password: {
+          type: String,
+          required: true
+        },
+        date: {
+          type: Date,
+          default: Date.now
+        }
+      });
+
+      const User = mongoose.model('User', UserSchema);
+
+      module.exports = User;
+
+ADD BOOTSWATCH, FONTAWESOME, BOOTSTRAP CDN
+--------------------------------------------------------------------------------
+1.project/views/.ejs files
+
+      <title>
+        cdn bootswatch css . . .
+        cdn fontawesome . . .
+
+        cdn bootstrap js . . .
+      </body>
+
+REGISTER - register
+         - forms-validation
+         - email-already-exist -
+         - bcrypt-password -
+         - register-insert - or insert to the database
+         - redirect
+--------------------------------------------------------------------------------
+***************************** forms-validation
+1.app.js
+2.routes/users.js
+3.views/partials/messages.js
+4.views/register.ejs
+
+LOGIN - session
+      -
+--------------------------------------------------------------------------------
+1.project/config/passport.js
+2.app.js
+3.routes/users.js
+4.views/partials/messages.js
+
+DASHBOARD - display username of user login in navbar
+--------------------------------------------------------------------------------
+1.routes/index.js
+2.views/dashboard.ejs
+
+LOGOUT - display username of the user login in the navbar
+--------------------------------------------------------------------------------
+1.routes/users.js
+2.config/auth.js
+3.routes/index.js
+4.views/dashboard.ejs
+
+
+24min
