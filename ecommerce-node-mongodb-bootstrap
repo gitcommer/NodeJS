@@ -1,0 +1,515 @@
+31 May 2020
+https://www.youtube.com/watch?v=-3vvxn78MH4&list=PL55RiY5tL51rajp7Xr_zk-fCFtzdlGKUp&index=2
+
+NOTES
+2.SETUP PROJECT - css, bootstrap, jquery
+3.PRODUCT INDEX VIEWS - create .hbs layout file
+4.SETUP & CONNECT DATABASE
+
+NOTES
+--------------------------------------------------------------------------------
+.hbs or .ejs                                                                    //is the same templating
+{{{body}}}                                                                      //output template like .hbs
+{{title}}                                                                       //output variable in index.js like res.render('index', { title: 'Express' });
+css, bootstrap, jquery                                                          //layout.hbs
+npm install --save express-handlebars                                           //this will install more handlebars features than the built in one
+done                                                                            //means all process is done, return now the data
+passport strategy                                                               //display error message or success on login
+
+2.SETUP PROJECT - css, bootstrap, jquery, fontawesome
+--------------------------------------------------------------------------------
+1.cmd> express shopping-cart --hbs                                              //this will create automatically project folder packages.json, app.js, public, routes, views etc.
+2.project/npm install
+3.localhost:3000
+
+3.PRODUCT INDEX VIEWS - create .hbs layout file
+--------------------------------------------------------------------------------
+1.project/npm install --save express-handlebars                                 //this will install more handlebars features than the built in one
+2.app.js
+    var expressHbs = require('express-handlebars');                             //1.handlebars - add this on top
+
+    app.engine('.hbs', expressHbs({defaultLayout: 'layout', extname: '.hbs'}));    //2.handlebars - add this on middle, views/layout/layouts.ejs
+    app.set('view engine', '.hbs');
+3.views/layouts/layout.hbs
+    <body>
+      {{> header }}                                                             //views/partials/header.hbs
+4.views/partials/header.hbs
+    bootstrap nabvar code . . .
+5.routes/shop/index.js
+    router.get('/', function(req, res, next) {
+      res.render('shop/index', { title: 'Express' });                           //shop/index
+    });
+6.views/shop/index.hbs
+    bootstrap thumbnail code . . .
+
+4.SETUP & CONNECT DATABASE
+--------------------------------------------------------------------------------
+1.project> npm install --save mongoose
+2.app.js
+      var mongoose = require('mogoose');                                        //add this on top
+
+      mongoose.connect('localhost:27017/shopping');
+
+5.SEEDING DATA or CREATE TABLE  ERRRRRRRRRRRRROOOOOOOOOOOORRRRRRRRRRRR
+--------------------------------------------------------------------------------
+NOTE: this is a dummy data use to insert in console
+
+1.project/models/product.js
+      var mongoose = require('mongoose');
+      var Schema = mongoose.Schema;
+
+      var schema = new Schema({
+          imagePath: {type: String, require: true},
+          title: {type: String, require: true},
+          description: {type: String, require: true},
+          price: {type: Number, required: true}
+      });
+
+      module.exports = mongoose.model('Product', schema);
+
+1.project/seed/product-seeder.js
+      var Product = require('../models/product');
+
+      var mongoose = require('mogoose');
+
+      // connect mongoodb database
+      mongoose.connect('localhost:27017/shopping');
+
+      var products = [
+        new Product({
+          imagePath: '',
+          title: 'RoasteLine Delivery',
+          description: 'Awesome Game!!!',
+          price: 10
+        }),
+        new Product({
+          imagePath: '',
+          title: 'RoasteLine Delivery',
+          description: 'Awesome Game!!!',
+          price: 10
+        }),
+        new Product({
+          imagePath: '',
+          title: 'RoasteLine Delivery',
+          description: 'Awesome Game!!!',
+          price: 10
+        })
+      ];
+
+      var done = 0;
+      for(var i = 0; i < products.length; i++){
+        products[i].save(function(err, result){
+          done++;
+          if(done === products.length){
+            exit();
+          }
+        });
+      }
+
+      function exit(){
+        mongoose.disconnect();
+      }
+
+5.Outputting Data - display data from the database
+--------------------------------------------------------------------------------
+1.routes/index.js
+var express = require('express');
+var router = express.Router();
+var Product = require('../models/product');                                     //1.
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  //var products = Product.find();                                              //1.sample
+  Product.find(function(err, docs){                                             //2.sample - docs is the data in database
+    var productChunks = [];
+    var chunkSize = 3;
+    for(var i = 0; i < docs.length; i += chunkSize){                            //2.sample - docs.length is the data in the database, i += chunkSize is the increment
+      productChunks.push(docs.slice(i, i + chunkSize));
+    }
+    res.render('shop/index', { title: 'Express', products: productChunks });    //2.sample - products: docs, this will send to views
+  });
+});
+
+module.exports = router;
+
+2.views/shop/index.hbs
+{{# each products}}                                                             <!-- 1. -->
+  <div class="row">
+    {{# each this }}                                                            <!-- 1. -->
+      <div class="col-sm-6 col-md-4">
+        <div class="thumbnail">
+          <img src="{{this.imagePath}}" alt="..." class="img-responsive">       <!-- 1. -->
+          <div class="caption">
+            <h3>{{this.title}}</h3>                                             <!-- 1. -->
+            <p class="description">{{this.description}}</p>                     <!-- 1. -->
+            <div class="clearfix">
+              <div class="price">${{this.price}}</div>                          <!-- 1. -->
+              <a href="#" class="btn btn-success pull-right" role="button">Add to shopping cart</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {{/each}}                                                                   <!-- 1. -->
+  </div>
+{{/each}}                                                                       <!-- 1. -->
+
+6.Sign Up View, CSRF Protection & User Model
+--------------------------------------------------------------------------------
+1.project> npm install usurf                                                    //is a form crf token or form security --save
+2.project> npm install --save express-session
+3.project/views/user/signup.hbs
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <h1>Sign Up</h1>
+        {{#if hasErrors}}
+            <div class="alert alert-danger">
+                {{# each messages }}
+                    <p>{{this}}</p>
+                {{/each}}
+            </div>
+        {{/if}}
+        <form action="/user/signup" method="post">                              <!-- 1.signup - action="/user/signup" -->
+            <div class="form-group">
+                <label for="email">E-Mail</label>
+                <input type="text" id="email" name="email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control">
+            </div>
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">          <!-- 1.signup - csrfToken is a security code -->
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+    </div>
+</div>
+
+4.routes/index.js
+var express = require('express');
+var router = express.Router();
+var Product = require('../models/product');                                     //1.
+var csrf = reqiure('csurf');                                                    //1.signup
+
+var csrfProtection = csrf();                                                    //2.signup
+router.use(csrfProtection);                                                     //2.signup
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  //var products = Product.find();                                              //1.sample
+  Product.find(function(err, docs){                                             //2.sample - docs is the data in database
+    var productChunks = [];
+    var chunkSize = 3;
+    for(var i = 0; i < docs.length; i += chunkSize){                            //2.sample - docs.length is the data in the database, i += chunkSize is the increment
+      productChunks.push(docs.slice(i, i + chunkSize));
+    }
+    res.render('shop/index', { title: 'Express', products: productChunks });    //2.sample - products: docs, this will send to views
+  });
+});
+
+router.get('/user/signup', function(req, res, next){                            //3.signup
+  res.render('user/signup', {csrfToken: req.csrfToken()});
+});
+
+router.get('/user/signup', function(req, res, next){                            //4.signup - after signup redirect to homepage
+  res.redirect('/');
+});
+
+module.exports = router;
+
+5.models/user.js
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var bcrypt = require('bcrypt-nodejs');
+
+var userSchema = new Schema({
+    email: {type: String, required: true},
+    password: {type: String, required: true}
+});
+
+userSchema.methods.encryptPassword = function(password) {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(5), null);
+};
+
+userSchema.methods.validPassword = function(password) {
+  return bcrypt.compareSync(password, this.password);
+};
+
+module.exports = mongoose.model('User', userSchema);
+
+6.app.js
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var expressHbs = require('express-handlebars');                                 //1.handlebars -
+var mongoose = require('mogoose');
+var session = require('express-session');                                       //1.signup
+
+var indexRouter = require('./routes/index');
+
+var app = express();
+
+// connect mongoodb database
+mongoose.connect('localhost:27017/shopping');
+
+// view engine setup
+app.engine('.hbs', expressHbs({defaultLayout: 'layout', extname: '.hbs'}));     //2.handlebars - views/layout/layouts.ejs
+app.set('view engine', '.hbs');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(session({secret: 'mysupersecret', resave: false, saveUninitialized: false}));     //2.signup
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
+
+7.Sign Up with Passport - authentication
+--------------------------------------------------------------------------------
+1.project> npm install --save passport
+2.project> npm install --save bcrypt-nodejs
+3.project> npm install --save connect-flash
+4.project> npm install --save passport-local
+5.app.js
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var expressHbs = require('express-handlebars');                                 //1.handlebars -
+var mongoose = require('mogoose');
+var session = require('express-session');                                       //1.signup
+var passport = require('passport');                                             //1.signup-passport-flash
+var flash = require('connect-flash');                                           //1.signup-passport-flash
+
+var indexRouter = require('./routes/index');
+
+var app = express();
+
+// connect mongoodb database
+mongoose.connect('localhost:27017/shopping');
+require('./config/passport');                                                   //7.signup-passport-flash -
+
+// view engine setup
+app.engine('.hbs', expressHbs({defaultLayout: 'layout', extname: '.hbs'}));     //2.handlebars - views/layout/layouts.ejs
+app.set('view engine', '.hbs');
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(session({secret: 'mysupersecret', resave: false, saveUninitialized: false}));     //2.signup
+app.use(flash());                                                                         //2.signup-passport-flash
+app.use(passport.initialize());                                                           //2.signup-passport-flash
+app.use(passport.session());                                                              //2.signup-passport-flash
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+  next(createError(404));
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
+module.exports = app;
+
+6.config/passport.js
+var passport = require('passport');                                             //3.signup-passport-flash
+var User = require('../models/user');                                           //3.signup-passport-flash
+var LocalStrategy = require('passport-local').Strategy;                         //3.signup-passport-flash
+
+passport.serializeUser(function (user, done) {                                  //3.signup-passport-flash - this will store user in a session
+    done(null, user.id);
+});
+
+passport.deserializeUser(function (id, done) {
+    User.findById(id, function (err, user) {
+        done(err, user);
+    });
+});
+
+passport.use('local.signup', new LocalStrategy({                                //4.signup-passport-flash - get the user data from forms
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqToCallback: true
+}, function (req, email, password, done) {                                      //4.signup-passport-flash - form validation
+    req.checkBody('email', 'Invalid email').notEmpty().isEmail();
+    req.checkBody('password', 'Invalid password').notEmpty().isLength({min:4});
+    var errors = req.validationErrors();
+    if (errors) {
+        var messages = [];
+        errors.forEach(function(error) {
+           messages.push(error.msg);
+        });
+        return done(null, false, req.flash('error', messages));
+    }
+    User.findOne({'email': email}, function (err, user) {                       //4.signup-passport-flash - find user using email
+        if (err) {                                                              //4.signup-passport-flash - if user not found display error
+            return done(err);
+        }
+        if (user) {                                                             //4.signup-passport-flash - if email already exist
+            return done(null, false, {message: 'Email is already in use.'});
+        }
+        var newUser = new User();                                               //4.signup-passport-flash - insert new user data
+        newUser.email = email;
+        newUser.password = newUser.encryptPassword(password);
+        newUser.save(function(err, result) {
+           if (err) {
+               return done(err);
+           }
+           return done(null, newUser);
+        });
+    });
+}));
+
+passport.use('local.signin', new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqToCallback: true
+}, function(req, email, password, done) {
+    req.checkBody('email', 'Invalid email').notEmpty().isEmail();
+    req.checkBody('password', 'Invalid password').notEmpty();
+    var errors = req.validationErrors();
+    if (errors) {
+        var messages = [];
+        errors.forEach(function(error) {
+            messages.push(error.msg);
+        });
+        return done(null, false, req.flash('error', messages));
+    }
+    User.findOne({'email': email}, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+        if (!user) {
+            return done(null, false, {message: 'No user found.'});
+        }
+        if (!user.validPassword(password)) {
+            return done(null, false, {message: 'Wrong password.'});
+        }
+        return done(null, user);
+    });
+}));
+
+7.models/user.js
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+var bcrypt = require('bcrypt-nodejs');                                          //4.signup-passport-flash - encrypt the password
+
+var userSchema = new Schema({
+    email: {type: String, required: true},
+    password: {type: String, required: true}
+});
+
+userSchema.methods.encryptPassword = function(password) {                       //4.signup-passport-flash - encrypt the password
+  return bcrypt.hashSync(password, bcrypt.genSaltSync(5), null);
+};
+
+userSchema.methods.validPassword = function(password) {                         //4.signup-passport-flash - check encrypted password if the same
+  return bcrypt.compareSync(password, this.password);
+};
+
+module.exports = mongoose.model('User', userSchema);
+
+8.routes/index.js
+var express = require('express');
+var router = express.Router();
+var csrf = reqiure('csurf');                                                    //1.signup
+var passport = require('passport');                                             //6.signup-passport-flash -
+
+var Product = require('../models/product');
+
+var csrfProtection = csrf();                                                    //2.signup
+router.use(csrfProtection);                                                     //2.signup
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+  //var products = Product.find();                                              //1.sample
+  Product.find(function(err, docs){                                             //2.sample - docs is the data in database
+    var productChunks = [];
+    var chunkSize = 3;
+    for(var i = 0; i < docs.length; i += chunkSize){                            //2.sample - docs.length is the data in the database, i += chunkSize is the increment
+      productChunks.push(docs.slice(i, i + chunkSize));
+    }
+    res.render('shop/index', { title: 'Express', products: productChunks });    //2.sample - products: docs, this will send to views
+  });
+});
+
+router.get('/user/signup', function(req, res, next){                            //3.signup
+  var messages = req.flash('error');                                            //6.signup-passport-flash -
+  res.render('user/signup', {csrfToken: req.csrfToken(), messages: messages, hasErrors: messages.length > 0});
+});
+                           //4.signup - after signup redirect to homepage
+router.post('/user/signup', passport.authenticate('local-signup', {
+    successRedirect: '/profile',                                                //6.signup-passport-flash - if success redirect to home page
+    failureRedirect: 'user/signup',                                             //6.signup-passport-flash - if failed redirect again to signup page
+    failureFlash: true                                                          //6.signup-passport-flash - display message error or success
+  }));
+
+router.get('/user/profile', function(req, res, next){
+  res.render('user/profile');
+});
+
+module.exports = router;
+
+9.views/user/profile.js
+<h1>User Profile</h1>
+
+10.views/user/signup.hbs
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <h1>Sign Up</h1>
+        {{#if hasErrors}}
+            <div class="alert alert-danger">
+                {{# each messages }}
+                    <p>{{this}}</p>
+                {{/each}}
+            </div>
+        {{/if}}
+        <form action="/user/signup" method="post">                              <!-- 1.signup - action="/user/signup" -->
+            <div class="form-group">
+                <label for="email">E-Mail</label>
+                <input type="text" id="email" name="email" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control">
+            </div>
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">          <!-- 1.signup - csrfToken is a security code -->
+            <button type="submit" class="btn btn-primary">Sign Up</button>
+        </form>
+    </div>
+</div>
+
+
+8
